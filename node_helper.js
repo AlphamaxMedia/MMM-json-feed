@@ -9,34 +9,25 @@ module.exports = NodeHelper.create({
   getStats: function (url, urls) {
     var self = this;
 
-    // Gather all of the urls together
-    var allUrls = [];
-    if (url && url.length > 0) { allUrls.push(url); }
-    if (urls && urls.length > 0) { for (var i = 0; i < urls.length; i++) { allUrls.push(urls[i]); } }
+    // This promise shit doesn't work. fuck that all and keep it simple.
 
-    // Wait for all promises, then merge data together. Duplicate keys WILL be clobbered.
-    Promise.all(allUrls.map(self.requestAsync))
-      .then(function (allData) {
-        var finalData = {};
-
-        // Merge date
-        for (var i = 0; i < allData.length; i++) {
-          Object.assign(finalData, allData[i]);
-        }
-
-        // Return final data
-        self.sendSocketNotification("STATS_RESULT", finalData);
+//      request('http://127.0.0.1:6502', function (err, res, body) {
+      request(url, function (err, res, body) {
+          if (err) { console.log('err'); return reject(err); }
+	  finalData = JSON.parse(body);
+          self.sendSocketNotification("STATS_RESULT", finalData);
       });
+
   },
 
   // Nice little request wrapper from: https://stackoverflow.com/questions/32828415/how-to-run-multiple-async-functions-then-execute-callback
   requestAsync: function(url) {
-    return new Promise(function (resolve, reject) {
-      request(url, function (err, res, body) {
-        if (err) { return reject(err); }
-        return resolve(JSON.parse(body));
+      return new Promise(function (resolve, reject) {
+	  request(url, function (err, res, body) {
+              if (err) { console.log('err'); return reject(err); }
+              return resolve(JSON.parse(body));
+	  });
       });
-    });
   },
 
   //Subclass socketNotificationReceived received.

@@ -148,7 +148,7 @@ Module.register("MMM-json-feed", {
   socketNotificationReceived: function(notification, payload) {
     if (notification === "STATS_RESULT") {
       this.result = payload;
-      this.updateDom(500); // 500 is fade
+      this.updateDom(0); // 500 is fade
     }
   },
 
